@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+{% block title %}Alertas{% endblock %}
+{% block page_title %}Alertas de stock{% endblock %}
+
+{% block content %}
+{% if activas_count %}
+<div class="alert alert-warning d-flex align-items-center gap-2">
+  <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+  <div>Hay <strong>{{ activas_count }}</strong> alerta{{ activas_count|pluralize }} activa{{ activas_count|pluralize }} que requieren atención.</div>
+</div>
+{% endif %}
+
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Producto</th>
+          <th>Mensaje</th>
+          <th class="text-center">Stock crítico</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th class="text-center">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in alertas %}
+        <tr>
+          <td class="ps-3">
+            <a href="{% url 'inventario:producto_detalle' a.producto.pk %}" class="text-decoration-none fw-semibold">
+              {{ a.producto.nombre|truncatechars:30 }}
+            </a>
+          </td>
+          <td class="text-muted" style="font-size:.84rem;">{{ a.mensaje|truncatechars:50 }}</td>
+          <td class="text-center fw-bold text-danger">{{ a.nivel_critico }}</td>
+          <td>
+            {% if a.estado == 'ACTIVA' %}
+              <span class="badge badge-bajo">Activa</span>
+            {% elif a.estado == 'ATENDIDA' %}
+              <span class="badge badge-normal">Atendida</span>
+            {% else %}
+              <span class="badge bg-secondary">Ignorada</span>
+            {% endif %}
+          </td>
+          <td class="text-muted" style="font-size:.8rem;">{{ a.fecha|date:"d/m/y H:i" }}</td>
+          <td class="text-center">
+            {% if a.estado == 'ACTIVA' %}
+            <a href="{% url 'inventario:atender_alerta' a.pk %}" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-check2 me-1"></i>Atender
+            </a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">
+          <i class="bi bi-check-circle-fill text-success fs-2 d-block mb-2"></i>
+          No hay alertas registradas.
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

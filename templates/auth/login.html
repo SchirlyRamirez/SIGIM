@@ -1,0 +1,65 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block auth_content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1a5c36 0%, #2e9e5c 100%);">
+  <div class="card shadow-lg border-0" style="width: 100%; max-width: 420px; border-radius: 16px; overflow: hidden;">
+    <!-- Header verde -->
+    <div class="p-4 text-center" style="background: #1a5c36;">
+      <div class="mb-2">
+        <i class="bi bi-boxes text-white" style="font-size: 2.5rem;"></i>
+      </div>
+      <h4 class="text-white fw-bold mb-0">SIGIM</h4>
+      <small class="text-white opacity-75">Sistema de Gestión de Inventarios — Mercaldas</small>
+    </div>
+
+    <!-- Formulario -->
+    <div class="card-body p-4">
+      <h6 class="text-muted mb-4 text-center">Ingrese sus credenciales</h6>
+
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }} py-2" role="alert">
+        <i class="bi bi-exclamation-circle me-1"></i>{{ msg }}
+      </div>
+      {% endfor %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold" for="username">Usuario</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-person text-muted"></i>
+            </span>
+            <input type="text" name="username" id="username"
+              class="form-control border-start-0 ps-0"
+              placeholder="Nombre de usuario" autofocus required>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold" for="password">Contraseña</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0">
+              <i class="bi bi-lock text-muted"></i>
+            </span>
+            <input type="password" name="password" id="password"
+              class="form-control border-start-0 ps-0"
+              placeholder="Contraseña" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn w-100 fw-semibold text-white py-2"
+          style="background: #1a5c36; border-radius: 8px;">
+          <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar al sistema
+        </button>
+      </form>
+    </div>
+
+    <div class="card-footer text-center text-muted py-3" style="font-size: .78rem; background: #f8f9fa;">
+      SIGIM v1.0 &nbsp;·&nbsp; Universidad de Caldas &nbsp;·&nbsp; 2026
+    </div>
+  </div>
+</div>
+{% endblock %}

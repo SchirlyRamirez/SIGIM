@@ -1,0 +1,123 @@
+{% extends 'base/base.html' %}
+{% block title %}Inventario{% endblock %}
+{% block page_title %}Inventario de productos{% endblock %}
+
+{% block content %}
+<!-- Barra de búsqueda y filtros -->
+<div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card-body py-3">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label small fw-semibold text-muted">Buscar</label>
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" value="{{ query }}" class="form-control"
+            placeholder="Nombre, código o categoría...">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold text-muted">Categoría</label>
+        <select name="categoria" class="form-select form-select-sm">
+          <option value="">Todas las categorías</option>
+          {% for cat in categorias %}
+          <option value="{{ cat }}" {% if cat == categoria_sel %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold text-muted">Estado stock</label>
+        <select name="estado" class="form-select form-select-sm">
+          <option value="">Todos</option>
+          <option value="normal" {% if estado_sel == 'normal' %}selected{% endif %}>Normal</option>
+          <option value="bajo" {% if estado_sel == 'bajo' %}selected{% endif %}>Stock bajo</option>
+          <option value="sin_stock" {% if estado_sel == 'sin_stock' %}selected{% endif %}>Sin stock</option>
+        </select>
+      </div>
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary w-100">Filtrar</button>
+        <a href="{% url 'inventario:producto_lista' %}" class="btn btn-sm btn-outline-secondary">✕</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tabla de productos -->
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+    <h6 class="fw-semibold mb-0">
+      <i class="bi bi-box-seam me-2 text-secondary"></i>
+      {{ productos|length }} producto{{ productos|length|pluralize }} encontrado{{ productos|length|pluralize }}
+    </h6>
+    <a href="{% url 'inventario:producto_crear' %}" class="btn btn-sm btn-success">
+      <i class="bi bi-plus-lg me-1"></i>Nuevo producto
+    </a>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sigim table-hover mb-0">
+        <thead>
+          <tr>
+            <th class="ps-3">Código</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th class="text-center">Disponible</th>
+            <th class="text-center">Stock mín.</th>
+            <th>Estado</th>
+            <th>Proveedor</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in productos %}
+          <tr>
+            <td class="ps-3">
+              <code style="font-size:.82rem; background:#f0f4f0; padding:2px 6px; border-radius:4px;">{{ p.codigo_unico }}</code>
+            </td>
+            <td>
+              <a href="{% url 'inventario:producto_detalle' p.pk %}" class="text-decoration-none fw-semibold text-dark">
+                {{ p.nombre }}
+              </a>
+            </td>
+            <td class="text-muted">{{ p.categoria }}</td>
+            <td>${{ p.precio|floatformat:0 }}</td>
+            <td class="text-center fw-bold">{{ p.cantidad_disponible }}</td>
+            <td class="text-center text-muted">{{ p.stock_minimo }}</td>
+            <td>
+              {% if p.estado_stock == 'sin_stock' %}
+                <span class="badge badge-sin">Sin stock</span>
+              {% elif p.estado_stock == 'bajo' %}
+                <span class="badge badge-bajo"><i class="bi bi-exclamation-triangle me-1"></i>Bajo</span>
+              {% else %}
+                <span class="badge badge-normal"><i class="bi bi-check-circle me-1"></i>Normal</span>
+              {% endif %}
+            </td>
+            <td class="text-muted" style="font-size:.82rem;">{{ p.proveedor.nombre|default:"—" }}</td>
+            <td class="text-center">
+              <div class="btn-group btn-group-sm">
+                <a href="{% url 'inventario:entrada_producto' p.pk %}" class="btn btn-outline-success" title="Entrada">
+                  <i class="bi bi-arrow-down-circle"></i>
+                </a>
+                <a href="{% url 'inventario:salida_producto' p.pk %}" class="btn btn-outline-warning" title="Salida">
+                  <i class="bi bi-arrow-up-circle"></i>
+                </a>
+                <a href="{% url 'inventario:producto_editar' p.pk %}" class="btn btn-outline-secondary" title="Editar">
+                  <i class="bi bi-pencil"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-5">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              No se encontraron productos con los filtros seleccionados.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
