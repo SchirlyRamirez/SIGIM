@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     # Apps SIGIM
     'usuarios',
     'inventario',
+    'proveedores',
 ]
 
 MIDDLEWARE = [

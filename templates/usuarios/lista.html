@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+{% block title %}Usuarios{% endblock %}
+{% block page_title %}Gestion de usuarios{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+    <h6 class="fw-semibold mb-0"><i class="bi bi-people me-2 text-secondary"></i>{{ usuarios|length }} usuario(s)</h6>
+    <a href="{% url 'usuarios:crear' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-lg me-1"></i>Nuevo usuario</a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Usuario</th>
+          <th>Nombre completo</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in usuarios %}
+        <tr>
+          <td class="ps-3 fw-semibold">{{ u.username }}</td>
+          <td>{{ u.get_full_name|default:"—" }}</td>
+          <td class="text-muted" style="font-size:.83rem;">{{ u.email|default:"—" }}</td>
+          <td>
+            {% if u.is_superuser %}
+              <span class="badge bg-purple text-white" style="background:#7c3aed!important;">Superusuario</span>
+            {% elif u.is_staff %}
+              <span class="badge bg-primary">Administrador</span>
+            {% else %}
+              <span class="badge bg-secondary">Encargado / Cajero</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if u.is_active %}
+              <span class="badge badge-normal">Activo</span>
+            {% else %}
+              <span class="badge badge-sin">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'usuarios:editar' u.pk %}" class="btn btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+              {% if u != request.user %}
+              <a href="{% url 'usuarios:desactivar' u.pk %}" class="btn btn-outline-danger" title="Desactivar"><i class="bi bi-x-circle"></i></a>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

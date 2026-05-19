@@ -125,7 +125,14 @@
     <a href="{% url 'inventario:producto_crear' %}" class="nav-link">
       <i class="bi bi-plus-circle"></i> Nuevo producto
     </a>
+    <a href="{% url 'proveedores:lista' %}" class="nav-link {% if 'proveedores' in request.path %}active{% endif %}">
+      <i class="bi bi-truck"></i> Proveedores
+    </a>
+    <a href="{% url 'usuarios:lista' %}" class="nav-link {% if 'auth' in request.path and 'login' not in request.path or 'usuarios' in request.path %}active{% endif %}">
+      <i class="bi bi-people"></i> Usuarios
+    </a>
   </div>
+
 
   <div class="sidebar-footer">
     <i class="bi bi-person-circle me-1"></i> {{ user.get_full_name|default:user.username }}<br>

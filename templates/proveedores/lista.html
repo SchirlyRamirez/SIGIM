@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+{% block title %}Proveedores{% endblock %}
+{% block page_title %}Proveedores{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card-body py-3">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-8">
+        <div class="input-group input-group-sm">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar proveedor...">
+        </div>
+      </div>
+      <div class="col-md-4 d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary w-100">Buscar</button>
+        <a href="{% url 'proveedores:lista' %}" class="btn btn-sm btn-outline-secondary">✕</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+    <h6 class="fw-semibold mb-0"><i class="bi bi-truck me-2 text-secondary"></i>{{ proveedores|length }} proveedor(es)</h6>
+    <a href="{% url 'proveedores:crear' %}" class="btn btn-sm btn-success"><i class="bi bi-plus-lg me-1"></i>Nuevo proveedor</a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Nombre</th>
+          <th>Contacto</th>
+          <th>Telefono</th>
+          <th>Email</th>
+          <th class="text-center">Productos</th>
+          <th>Estado</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in proveedores %}
+        <tr>
+          <td class="ps-3">
+            <a href="{% url 'proveedores:detalle' p.pk %}" class="text-decoration-none fw-semibold text-dark">{{ p.nombre }}</a>
+          </td>
+          <td class="text-muted">{{ p.contacto|default:"—" }}</td>
+          <td class="text-muted">{{ p.telefono|default:"—" }}</td>
+          <td class="text-muted" style="font-size:.83rem;">{{ p.email|default:"—" }}</td>
+          <td class="text-center"><span class="badge bg-light text-dark border">{{ p.total_productos }}</span></td>
+          <td>
+            {% if p.activo %}<span class="badge badge-normal">Activo</span>
+            {% else %}<span class="badge badge-sin">Inactivo</span>{% endif %}
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="{% url 'proveedores:detalle' p.pk %}" class="btn btn-outline-primary" title="Ver"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'proveedores:editar' p.pk %}" class="btn btn-outline-secondary" title="Editar"><i class="bi bi-pencil"></i></a>
+              <a href="{% url 'proveedores:desactivar' p.pk %}" class="btn btn-outline-danger" title="Desactivar"><i class="bi bi-x-circle"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-truck fs-2 d-block mb-2"></i>No hay proveedores.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

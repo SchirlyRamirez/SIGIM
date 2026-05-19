@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+{% block title %}Confirmar accion{% endblock %}
+{% block page_title %}Confirmar accion{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm" style="border-radius:12px;">
+      <div class="card-body text-center py-5">
+        {% if proveedor.activo %}
+          <i class="bi bi-x-circle-fill text-danger" style="font-size:3rem;"></i>
+          <h5 class="fw-bold mt-3 mb-2">Desactivar proveedor</h5>
+        {% else %}
+          <i class="bi bi-check-circle-fill text-success" style="font-size:3rem;"></i>
+          <h5 class="fw-bold mt-3 mb-2">Activar proveedor</h5>
+        {% endif %}
+        <p class="text-muted mb-4">Esta accion afectara a <strong>{{ proveedor.nombre }}</strong>.</p>
+        <form method="post" class="d-flex gap-2 justify-content-center">
+          {% csrf_token %}
+          <button type="submit" class="btn {% if proveedor.activo %}btn-danger{% else %}btn-success{% endif %}">Confirmar</button>
+          <a href="{% url 'proveedores:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
