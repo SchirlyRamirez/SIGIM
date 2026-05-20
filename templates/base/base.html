@@ -153,15 +153,24 @@
 <!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
 <div id="main">
   <div class="topbar">
-    <p class="page-title">{% block page_title %}{% endblock %}</p>
-    <div class="d-flex align-items-center gap-3">
-      <a href="{% url 'inventario:alertas' %}" class="text-decoration-none position-relative">
-        <i class="bi bi-bell fs-5 text-secondary"></i>
-      </a>
-      <span class="text-secondary" style="font-size:.82rem">{{ user.username }}</span>
+  <p class="page-title">{% block page_title %}{% endblock %}</p>
+  <form method="get" action="{% url 'inventario:busqueda' %}" class="d-flex align-items-center mx-3" style="flex:1;max-width:380px;">
+    <div class="input-group input-group-sm">
+      <span class="input-group-text bg-light border-end-0">
+        <i class="bi bi-search text-muted"></i>
+      </span>
+      <input type="text" name="q" class="form-control border-start-0 bg-light"
+        placeholder="Buscar productos, proveedores..." autocomplete="off"
+        value="{% if request.resolver_match.url_name == 'busqueda' %}{{ request.GET.q }}{% endif %}">
     </div>
+  </form>
+  <div class="d-flex align-items-center gap-3">
+    <a href="{% url 'inventario:alertas' %}" class="text-decoration-none">
+      <i class="bi bi-bell fs-5 text-secondary"></i>
+    </a>
+    <span class="text-secondary" style="font-size:.82rem">{{ user.username }}</span>
   </div>
-
+</div>
   <div class="content-area">
     {% for msg in messages %}
     <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">

@@ -1,0 +1,136 @@
+{% extends 'base/base.html' %}
+{% block title %}Busqueda{% endblock %}
+{% block page_title %}Resultados de busqueda{% endblock %}
+
+{% block content %}
+
+{% if query %}
+<p class="text-muted mb-4">
+  <strong>{{ total }}</strong> resultado{{ total|pluralize }} para
+  <strong>"{{ query }}"</strong>
+</p>
+
+<!-- Productos -->
+{% if productos %}
+<div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3">
+    <h6 class="fw-semibold mb-0"><i class="bi bi-box-seam me-2 text-secondary"></i>Productos ({{ productos|length }})</h6>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Codigo</th>
+          <th>Nombre</th>
+          <th>Categoria</th>
+          <th class="text-center">Stock</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in productos %}
+        <tr onclick="window.location='{% url 'inventario:producto_detalle' p.pk %}'" style="cursor:pointer;">
+          <td class="ps-3"><code style="background:#f0f4f0;padding:2px 6px;border-radius:4px;font-size:.82rem;">{{ p.codigo_unico }}</code></td>
+          <td class="fw-semibold">{{ p.nombre }}</td>
+          <td class="text-muted">{{ p.categoria }}</td>
+          <td class="text-center fw-bold">{{ p.cantidad_disponible }}</td>
+          <td>
+            {% if p.estado_stock == 'sin_stock' %}<span class="badge badge-sin">Sin stock</span>
+            {% elif p.estado_stock == 'bajo' %}<span class="badge badge-bajo">Bajo</span>
+            {% else %}<span class="badge badge-normal">Normal</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Proveedores -->
+{% if proveedores %}
+<div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3">
+    <h6 class="fw-semibold mb-0"><i class="bi bi-truck me-2 text-secondary"></i>Proveedores ({{ proveedores|length }})</h6>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Nombre</th>
+          <th>Contacto</th>
+          <th>Telefono</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in proveedores %}
+        <tr onclick="window.location='{% url 'proveedores:detalle' p.pk %}'" style="cursor:pointer;">
+          <td class="ps-3 fw-semibold">{{ p.nombre }}</td>
+          <td class="text-muted">{{ p.contacto|default:"—" }}</td>
+          <td class="text-muted">{{ p.telefono|default:"—" }}</td>
+          <td class="text-muted" style="font-size:.83rem;">{{ p.email|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- Movimientos -->
+{% if movimientos %}
+<div class="card border-0 shadow-sm mb-3" style="border-radius:12px;">
+  <div class="card-header bg-white border-0 pt-3">
+    <h6 class="fw-semibold mb-0"><i class="bi bi-clock-history me-2 text-secondary"></i>Movimientos ({{ movimientos|length }})</h6>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-sigim table-hover mb-0">
+      <thead>
+        <tr>
+          <th class="ps-3">Producto</th>
+          <th>Tipo</th>
+          <th class="text-center">Cantidad</th>
+          <th>Usuario</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in movimientos %}
+        <tr onclick="window.location='{% url 'inventario:producto_detalle' m.producto.pk %}'" style="cursor:pointer;">
+          <td class="ps-3 fw-semibold">{{ m.producto.nombre|truncatechars:28 }}</td>
+          <td>
+            {% if m.tipo == 'ENTRADA' %}<span class="badge badge-normal">Entrada</span>
+            {% elif m.tipo == 'SALIDA' %}<span class="badge badge-bajo">Salida</span>
+            {% else %}<span class="badge bg-secondary">Ajuste</span>{% endif %}
+          </td>
+          <td class="text-center fw-bold">{{ m.cantidad }}</td>
+          <td class="text-muted">{{ m.usuario_responsable.username|default:"—" }}</td>
+          <td class="text-muted" style="font-size:.8rem;">{{ m.fecha|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% if total == 0 %}
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-body text-center py-5">
+    <i class="bi bi-search fs-2 text-muted d-block mb-2"></i>
+    <p class="text-muted mb-0">No se encontraron resultados para <strong>"{{ query }}"</strong></p>
+  </div>
+</div>
+{% endif %}
+
+{% else %}
+<div class="card border-0 shadow-sm" style="border-radius:12px;">
+  <div class="card-body text-center py-5">
+    <i class="bi bi-search fs-2 text-muted d-block mb-2"></i>
+    <p class="text-muted mb-0">Escribe algo en la barra de busqueda para comenzar.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

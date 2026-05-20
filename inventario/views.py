@@ -334,3 +334,38 @@ def historial_movimientos(request):
         'titulo': 'Historial de movimientos',
     }
     return render(request, 'inventario/historial.html', context)
+
+@login_required
+def busqueda_global(request):
+    query = request.GET.get('q', '').strip()
+    productos = []
+    proveedores = []
+    movimientos = []
+
+    if query:
+        productos = Producto.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(codigo_unico__icontains=query) |
+            Q(categoria__icontains=query)
+        ).filter(activo=True)[:8]
+
+        proveedores = Proveedor.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(contacto__icontains=query) |
+            Q(email__icontains=query)
+        )[:5]
+
+        movimientos = MovimientoInventario.objects.filter(
+            Q(producto__nombre__icontains=query) |
+            Q(descripcion__icontains=query)
+        ).select_related('producto', 'usuario_responsable').order_by('-fecha')[:5]
+
+    context = {
+        'query': query,
+        'productos': productos,
+        'proveedores': proveedores,
+        'movimientos': movimientos,
+        'total': len(list(productos)) + len(list(proveedores)) + len(list(movimientos)),
+        'titulo': f'Busqueda: {query}',
+    }
+    return render(request, 'inventario/busqueda.html', context)
