@@ -285,3 +285,52 @@ def aprobar_orden(request, pk):
     orden.save()
     messages.success(request, f'Orden OC-{orden.pk} aprobada y enviada al proveedor.')
     return redirect('inventario:ordenes')
+@login_required
+def historial_movimientos(request):
+    from datetime import datetime
+
+    movimientos = MovimientoInventario.objects.select_related(
+        'producto', 'usuario_responsable', 'proveedor'
+    ).order_by('-fecha')
+
+    # Filtros
+    tipo = request.GET.get('tipo', '')
+    producto_q = request.GET.get('producto', '')
+    fecha_desde = request.GET.get('fecha_desde', '')
+    fecha_hasta = request.GET.get('fecha_hasta', '')
+    usuario_q = request.GET.get('usuario', '')
+
+    if tipo:
+        movimientos = movimientos.filter(tipo=tipo)
+    if producto_q:
+        movimientos = movimientos.filter(producto__nombre__icontains=producto_q)
+    if usuario_q:
+        movimientos = movimientos.filter(usuario_responsable__username__icontains=usuario_q)
+    if fecha_desde:
+        try:
+            movimientos = movimientos.filter(fecha__date__gte=fecha_desde)
+        except:
+            pass
+    if fecha_hasta:
+        try:
+            movimientos = movimientos.filter(fecha__date__lte=fecha_hasta)
+        except:
+            pass
+
+    total_entradas = movimientos.filter(tipo='ENTRADA').count()
+    total_salidas = movimientos.filter(tipo='SALIDA').count()
+    total_ajustes = movimientos.filter(tipo='AJUSTE').count()
+
+    context = {
+        'movimientos': movimientos[:200],
+        'total_entradas': total_entradas,
+        'total_salidas': total_salidas,
+        'total_ajustes': total_ajustes,
+        'tipo_sel': tipo,
+        'producto_q': producto_q,
+        'fecha_desde': fecha_desde,
+        'fecha_hasta': fecha_hasta,
+        'usuario_q': usuario_q,
+        'titulo': 'Historial de movimientos',
+    }
+    return render(request, 'inventario/historial.html', context)

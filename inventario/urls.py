@@ -16,4 +16,5 @@ urlpatterns = [
     path('alertas/<int:pk>/atender/', views.atender_alerta, name='atender_alerta'),
     path('ordenes/', views.ordenes_lista, name='ordenes'),
     path('ordenes/<int:pk>/aprobar/', views.aprobar_orden, name='aprobar_orden'),
+    path('historial/', views.historial_movimientos, name='historial'),
 ]
