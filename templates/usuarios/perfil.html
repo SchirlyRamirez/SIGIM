@@ -1,0 +1,127 @@
+{% extends 'base/base.html' %}
+{% block title %}Mi perfil{% endblock %}
+{% block page_title %}Mi perfil{% endblock %}
+
+{% block content %}
+<div class="row g-3 justify-content-center">
+
+  <!-- Datos personales -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm" style="border-radius:12px;">
+      <div class="card-header bg-white border-0 pt-3">
+        <h6 class="fw-semibold mb-0"><i class="bi bi-person-circle me-2 text-secondary"></i>Datos personales</h6>
+      </div>
+      <div class="card-body">
+
+        <!-- Avatar inicial -->
+        <div class="text-center mb-4">
+          <div class="mx-auto d-flex align-items-center justify-content-center fw-bold text-white"
+            style="width:72px;height:72px;border-radius:50%;background:#1a5c36;font-size:1.8rem;">
+            {{ user.first_name|first|upper|default:user.username|first|upper }}
+          </div>
+          <div class="fw-bold mt-2">{{ user.get_full_name|default:user.username }}</div>
+          <small class="text-muted">
+            {% if user.is_superuser %}Superusuario
+            {% elif user.is_staff %}Administrador
+            {% else %}Encargado / Cajero{% endif %}
+          </small>
+        </div>
+
+        <form method="post" action="{% url 'usuarios:perfil' %}" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nombre</label>
+              <input type="text" name="first_name" value="{{ user.first_name }}"
+                class="form-control" placeholder="Tu nombre">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Apellido</label>
+              <input type="text" name="last_name" value="{{ user.last_name }}"
+                class="form-control" placeholder="Tu apellido">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Correo electronico</label>
+              <input type="email" name="email" value="{{ user.email }}"
+                class="form-control" placeholder="correo@ejemplo.com">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold text-muted">Usuario (no editable)</label>
+              <input type="text" value="{{ user.username }}" class="form-control bg-light" disabled>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3 w-100">
+            <i class="bi bi-check2 me-1"></i>Guardar cambios
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambiar contrasena -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm" style="border-radius:12px;">
+      <div class="card-header bg-white border-0 pt-3">
+        <h6 class="fw-semibold mb-0"><i class="bi bi-lock me-2 text-secondary"></i>Cambiar contrasena</h6>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{% url 'usuarios:cambiar_password' %}" novalidate>
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Contrasena actual</label>
+            <input type="password" name="password_actual" class="form-control"
+              placeholder="Tu contrasena actual" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nueva contrasena</label>
+            <input type="password" name="password_nueva" class="form-control"
+              placeholder="Minimo 8 caracteres" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Confirmar nueva contrasena</label>
+            <input type="password" name="password_confirmar" class="form-control"
+              placeholder="Repite la nueva contrasena" required>
+          </div>
+          <div class="alert alert-light border" style="font-size:.82rem;">
+            <i class="bi bi-info-circle me-1 text-primary"></i>
+            La contrasena debe tener minimo 8 caracteres y no puede ser solo numeros.
+          </div>
+          <button type="submit" class="btn btn-warning w-100 fw-semibold">
+            <i class="bi bi-shield-lock me-1"></i>Cambiar contrasena
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info de sesion -->
+    <div class="card border-0 shadow-sm mt-3" style="border-radius:12px;">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3"><i class="bi bi-info-circle me-2 text-secondary"></i>Informacion de cuenta</h6>
+        <table class="table table-sm mb-0">
+          <tr>
+            <th class="text-muted fw-normal" style="font-size:.82rem;">Usuario</th>
+            <td class="fw-semibold">{{ user.username }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted fw-normal" style="font-size:.82rem;">Rol</th>
+            <td>
+              {% if user.is_superuser %}Superusuario
+              {% elif user.is_staff %}Administrador
+              {% else %}Encargado / Cajero{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th class="text-muted fw-normal" style="font-size:.82rem;">Miembro desde</th>
+            <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+          </tr>
+          <tr>
+            <th class="text-muted fw-normal" style="font-size:.82rem;">Ultimo acceso</th>
+            <td>{{ user.last_login|date:"d/m/Y H:i"|default:"—" }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

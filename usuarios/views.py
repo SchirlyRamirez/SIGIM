@@ -100,3 +100,58 @@ def usuario_desactivar(request, pk):
     return render(request, 'usuarios/confirmar_desactivar.html', {
         'usuario': usuario, 'titulo': 'Confirmar accion'
     })
+    
+    from django.contrib.auth import update_session_auth_hash
+
+@login_required
+def perfil(request):
+    if request.method == 'POST':
+        # Actualizar datos personales
+        user = request.user
+        user.first_name = request.POST.get('first_name', '').strip()
+        user.last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        # Validar email unico
+        if email and User.objects.filter(email=email).exclude(pk=user.pk).exists():
+            messages.error(request, 'Este correo ya esta en uso por otro usuario.')
+            return redirect('usuarios:perfil')
+
+        user.email = email
+        user.save()
+        messages.success(request, 'Datos actualizados correctamente.')
+        return redirect('usuarios:perfil')
+
+    return render(request, 'usuarios/perfil.html', {'titulo': 'Mi perfil'})
+
+
+@login_required
+def cambiar_password(request):
+    if request.method == 'POST':
+        actual = request.POST.get('password_actual', '')
+        nueva = request.POST.get('password_nueva', '')
+        confirmar = request.POST.get('password_confirmar', '')
+
+        if not request.user.check_password(actual):
+            messages.error(request, 'La contrasena actual es incorrecta.')
+            return redirect('usuarios:perfil')
+
+        if len(nueva) < 8:
+            messages.error(request, 'La nueva contrasena debe tener al menos 8 caracteres.')
+            return redirect('usuarios:perfil')
+
+        if nueva.isdigit():
+            messages.error(request, 'La contrasena no puede ser solo numeros.')
+            return redirect('usuarios:perfil')
+
+        if nueva != confirmar:
+            messages.error(request, 'Las contrasenas no coinciden.')
+            return redirect('usuarios:perfil')
+
+        request.user.set_password(nueva)
+        request.user.save()
+        update_session_auth_hash(request, request.user)
+        messages.success(request, 'Contrasena cambiada exitosamente.')
+        return redirect('usuarios:perfil')
+
+    return redirect('usuarios:perfil')

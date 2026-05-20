@@ -13,23 +13,35 @@ from .forms import ProductoForm, MovimientoForm, ProveedorForm
 
 @login_required
 def dashboard(request):
+    from django.db.models import Count, Q
+    import json
+
     total_productos = Producto.objects.filter(activo=True).count()
     sin_stock = Producto.objects.filter(activo=True, cantidad_disponible=0).count()
-    bajo_stock = Producto.objects.filter(
-        activo=True, cantidad_disponible__gt=0
-    ).extra(where=['cantidad_disponible <= stock_minimo']).count()
+    bajo_stock = Producto.objects.filter(activo=True).extra(
+        where=['cantidad_disponible > 0 AND cantidad_disponible <= stock_minimo']
+    ).count()
     alertas_activas = AlertaStock.objects.filter(estado='ACTIVA').count()
     ordenes_pendientes = OrdenCompra.objects.filter(estado__in=['SUGERIDA', 'APROBADA']).count()
-
     ultimos_movimientos = MovimientoInventario.objects.select_related(
         'producto', 'usuario_responsable'
     ).order_by('-fecha')[:8]
-
     alertas = AlertaStock.objects.filter(estado='ACTIVA').select_related('producto')[:5]
-
     productos_criticos = Producto.objects.filter(activo=True).extra(
         where=['cantidad_disponible <= stock_minimo']
     ).order_by('cantidad_disponible')[:5]
+
+    # Datos para graficas
+    cats = Producto.objects.filter(activo=True).values_list('categoria', flat=True).distinct().order_by('categoria')
+    categorias_labels = list(cats)
+    categorias_data, stock_normal, stock_bajo, stock_sin = [], [], [], []
+
+    for cat in categorias_labels:
+        prods = Producto.objects.filter(activo=True, categoria=cat)
+        categorias_data.append(prods.count())
+        stock_normal.append(prods.extra(where=['cantidad_disponible > stock_minimo']).count())
+        stock_bajo.append(prods.extra(where=['cantidad_disponible > 0 AND cantidad_disponible <= stock_minimo']).count())
+        stock_sin.append(prods.filter(cantidad_disponible=0).count())
 
     context = {
         'total_productos': total_productos,
@@ -40,10 +52,14 @@ def dashboard(request):
         'ultimos_movimientos': ultimos_movimientos,
         'alertas': alertas,
         'productos_criticos': productos_criticos,
+        'categorias_labels': json.dumps(categorias_labels),
+        'categorias_data': json.dumps(categorias_data),
+        'stock_normal': json.dumps(stock_normal),
+        'stock_bajo': json.dumps(stock_bajo),
+        'stock_sin': json.dumps(stock_sin),
         'titulo': 'Dashboard',
     }
     return render(request, 'dashboard/home.html', context)
-
 
 # ─── PRODUCTOS ────────────────────────────────────────────────────────────────
 

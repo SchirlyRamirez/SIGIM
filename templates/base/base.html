@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     :root {
-      --sidebar-w: 240px;
+      --sidebar-w: 220px;
       --green-dark: #1a5c36;
       --green-mid: #237a47;
       --green-light: #2e9e5c;
@@ -17,12 +17,13 @@
     body { background: #f4f6f8; font-family: 'Segoe UI', system-ui, sans-serif; }
 
     /* ── Sidebar ── */
-    #sidebar {
+   #sidebar {
       width: var(--sidebar-w);
-      min-height: 100vh;
+      height: 100vh;
       background: var(--green-dark);
       position: fixed; top: 0; left: 0; z-index: 1000;
       display: flex; flex-direction: column;
+      overflow-y: auto;
     }
     .sidebar-brand {
       padding: 1.25rem 1rem;
@@ -33,16 +34,16 @@
 
     .sidebar-nav { padding: .75rem 0; flex: 1; }
     .nav-section {
-      padding: .5rem 1rem .25rem;
-      font-size: .68rem; font-weight: 600;
+      padding: .3rem 1rem .15rem;
+      font-size: .63rem; font-weight: 600;
       color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: 1px;
     }
     .sidebar-nav .nav-link {
       color: rgba(255,255,255,.75);
-      padding: .55rem 1.1rem;
+      padding: .45rem 1rem;
       border-radius: 0;
       display: flex; align-items: center; gap: .65rem;
-      font-size: .88rem; transition: all .15s;
+      font-size: .83rem; transition: all .15s;
     }
     .sidebar-nav .nav-link:hover,
     .sidebar-nav .nav-link.active {
@@ -98,48 +99,53 @@
   </div>
 
   <div class="sidebar-nav">
-    <div class="nav-section">Principal</div>
-    <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
-      <i class="bi bi-speedometer2"></i> Dashboard
-    </a>
+  <div class="nav-section">Principal</div>
+  <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+    <i class="bi bi-speedometer2"></i> Dashboard
+  </a>
 
-    <div class="nav-section mt-2">Inventario</div>
-    <a href="{% url 'inventario:producto_lista' %}" class="nav-link {% if 'producto' in request.path %}active{% endif %}">
-      <i class="bi bi-box-seam"></i> Productos
-    </a>
-    <a href="{% url 'inventario:entrada' %}" class="nav-link">
-      <i class="bi bi-box-arrow-in-down"></i> Registrar entrada
-    </a>
-    <a href="{% url 'inventario:salida' %}" class="nav-link">
-      <i class="bi bi-box-arrow-up"></i> Registrar salida
-    </a>
+  <div class="nav-section">Inventario</div>
+  <a href="{% url 'inventario:producto_lista' %}" class="nav-link {% if 'inventario' in request.path and 'entrada' not in request.path and 'salida' not in request.path %}active{% endif %}">
+    <i class="bi bi-box-seam"></i> Productos
+  </a>
+  <a href="{% url 'inventario:entrada' %}" class="nav-link">
+    <i class="bi bi-box-arrow-in-down"></i> Entrada
+  </a>
+  <a href="{% url 'inventario:salida' %}" class="nav-link">
+    <i class="bi bi-box-arrow-up"></i> Salida
+  </a>
 
-    <div class="nav-section mt-2">Gestión</div>
-    <a href="{% url 'inventario:alertas' %}" class="nav-link {% if 'alertas' in request.path %}active{% endif %}">
-      <i class="bi bi-bell"></i> Alertas
-      {% with n=request.session.alertas_count %}{% if n %}<span class="badge bg-warning text-dark ms-auto">{{ n }}</span>{% endif %}{% endwith %}
-    </a>
-    <a href="{% url 'inventario:ordenes' %}" class="nav-link {% if 'ordenes' in request.path %}active{% endif %}">
-      <i class="bi bi-cart-check"></i> Órdenes de compra
-    </a>
-    <a href="{% url 'inventario:producto_crear' %}" class="nav-link">
-      <i class="bi bi-plus-circle"></i> Nuevo producto
-    </a>
-    <a href="{% url 'proveedores:lista' %}" class="nav-link {% if 'proveedores' in request.path %}active{% endif %}">
-      <i class="bi bi-truck"></i> Proveedores
-    </a>
-    <a href="{% url 'usuarios:lista' %}" class="nav-link {% if 'auth' in request.path and 'login' not in request.path or 'usuarios' in request.path %}active{% endif %}">
-      <i class="bi bi-people"></i> Usuarios
-    </a>
-  </div>
+  <div class="nav-section">Gestion</div>
+  <a href="{% url 'inventario:alertas' %}" class="nav-link {% if 'alertas' in request.path %}active{% endif %}">
+    <i class="bi bi-bell"></i> Alertas
+  </a>
+  <a href="{% url 'inventario:ordenes' %}" class="nav-link {% if 'ordenes' in request.path %}active{% endif %}">
+    <i class="bi bi-cart-check"></i> Ordenes
+  </a>
+  <a href="{% url 'proveedores:lista' %}" class="nav-link {% if 'proveedores' in request.path %}active{% endif %}">
+    <i class="bi bi-truck"></i> Proveedores
+  </a>
+  <a href="{% url 'inventario:producto_crear' %}" class="nav-link">
+    <i class="bi bi-plus-circle"></i> Nuevo producto
+  </a>
 
+  {% if user.is_staff %}
+  <div class="nav-section">Administracion</div>
+  <a href="{% url 'usuarios:lista' %}" class="nav-link {% if 'auth' in request.path and 'login' not in request.path %}active{% endif %}">
+    <i class="bi bi-people"></i> Usuarios
+  </a>
+  {% endif %}
+</div>
 
   <div class="sidebar-footer">
-    <i class="bi bi-person-circle me-1"></i> {{ user.get_full_name|default:user.username }}<br>
-    <a href="{% url 'usuarios:logout' %}" class="text-warning text-decoration-none"><i class="bi bi-box-arrow-left me-1"></i>Cerrar sesión</a>
-  </div>
+  <a href="{% url 'usuarios:perfil' %}" class="text-white text-decoration-none d-block mb-1">
+    <i class="bi bi-person-circle me-1"></i> {{ user.get_full_name|default:user.username }}
+  </a>
+  <a href="{% url 'usuarios:logout' %}" class="text-warning text-decoration-none">
+    <i class="bi bi-box-arrow-left me-1"></i>Cerrar sesion
+  </a>
+</div>
 </nav>
-
 <!-- ══ MAIN ════════════════════════════════════════════════════════════════ -->
 <div id="main">
   <div class="topbar">
